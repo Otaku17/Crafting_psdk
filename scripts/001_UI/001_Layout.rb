@@ -4,8 +4,6 @@
 # Définit la structure visuelle de l'interface de crafting en créant
 # tous les sprites nécessaires (cadres, grilles, boîtes d'ingrédients, etc.).
 #
-# @author Nuri Yuri
-# @since 1.0.0
 # ============================================================================
 
 module UI
