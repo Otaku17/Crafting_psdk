@@ -325,46 +325,46 @@ This unlocks when:
 
 # CRAFT SYSTEM API
 
+Returns all recipes.
 ```ruby
 CraftSystem.all_recipes
 ```
-Returns all recipes.
 
+Check if recipe is unlocked.
 ```ruby
 CraftSystem.unlocked?(:recipe_key)
 ```
-Check if recipe is unlocked.
 
+Manually unlock/lock a recipe.
 ```ruby
 CraftSystem.unlock(:recipe_key)
 CraftSystem.lock(:recipe_key)
 ```
-Manually unlock/lock a recipe.
 
+Check if player can craft.
 ```ruby
 CraftSystem.can_craft?(:recipe_key, amount)
 ```
-Check if player can craft.
 
+Craft a specific amount.
 ```ruby
 CraftSystem.craft(:recipe_key, amount)
 ```
-Craft a specific amount.
 
+Craft maximum possible amount.
 ```ruby
 CraftSystem.craft_all(:recipe_key)
 ```
-Craft maximum possible amount.
 
+Get maximum craftable amount.
 ```ruby
 CraftSystem.max_craft(:recipe_key)
 ```
-Get maximum craftable amount.
 
+Get recipe data.
 ```ruby
 CraftSystem.data_craft(:recipe_key)
 ```
-Get recipe data.
 
 ---
 
