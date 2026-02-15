@@ -1,0 +1,20 @@
+---
+!ruby/object:PluginManager::Config
+name: Crafting
+author:
+  - Ota
+version: 1.0.0
+deps: []
+added_files:
+  - Data/Text/Dialogs/140000.csv
+  - Data/configs/crafting_config.json
+  - graphics/interface/crafting/cursor.png
+  - graphics/interface/crafting/frames.png
+  - graphics/interface/crafting/grid.png
+  - graphics/interface/crafting/ing_box.png
+  - graphics/interface/crafting/ing_details.png
+  - graphics/interface/crafting/inputs.png
+  - graphics/interface/crafting/item_desc.png
+  - graphics/interface/crafting/knob.png
+  - graphics/interface/crafting/scroll.png
+  - graphics/interface/crafting/shadow.png
