@@ -1,55 +1,61 @@
-# ============================================================================
-# CraftSystemUI - Layout Module
-# ============================================================================
-# Définit la structure visuelle de l'interface de crafting en créant
-# tous les sprites nécessaires (cadres, grilles, boîtes d'ingrédients, etc.).
-#
-# ============================================================================
+# ============================================================
+# UI::CraftSystemUI::Layout
+# ------------------------------------------------------------
+# Module handling the base layout creation of the Craft System UI.
+# Responsible for building all static interface sprites such as
+# frame, grid background, ingredient box, scroll bar and buttons.
+# ============================================================
 
 module UI
   module CraftSystemUI
-    # Module responsable de la création de la mise en page visuelle
-    #
-    # Ce module est inclus dans Composition et fournit la méthode
-    # create_box qui initialise tous les éléments graphiques de base.
     module Layout
-      # Crée tous les sprites de l'interface de crafting
+
+      # Create the base crafting UI layout.
+      # Initializes and positions all static sprites composing
+      # the interface structure.
       #
-      # Initialise les composants graphiques suivants :
-      # - Cadre principal avec support multilingue (FR/EN)
-      # - Grille de recettes
-      # - Boîte d'ingrédients
-      # - Barre de défilement
-      # - Boutons de navigation (gauche/droite)
-      # - Bouton de défilement (knob)
+      # Elements created:
+      # - Main frame (language dependent)
+      # - Recipe grid background
+      # - Ingredient display box
+      # - Vertical scroll bar
+      # - Left and right navigation buttons
+      # - Scroll knob sprite
       #
-      # @return [Hash{Symbol => Sprite}] Hash contenant tous les sprites créés
-      # @option return [Sprite] :frame Cadre principal de l'interface
-      # @option return [Sprite] :grid Grille de recettes
-      # @option return [Sprite] :ing_box Boîte d'affichage des ingrédients
-      # @option return [Sprite] :scroll_bar Barre de défilement verticale
-      # @option return [Sprite] :left Bouton de navigation gauche
-      # @option return [Sprite] :right Bouton de navigation droite
-      # @option return [Sprite] :knob Bouton de défilement mobile
-      #
-      # @example
-      #   @ui = create_box
-      #   @ui[:frame]  # => Sprite du cadre
-      #   @ui[:grid]   # => Sprite de la grille
-      #
-      # @note Les sprites sont automatiquement ajoutés au viewport parent
-      def create_box 
+      # @return [Hash{Symbol => Sprite}] collection of created UI sprites
+      def create_box
         {
           frame: add_sprite(
             0, 0,
             'crafting/frames'
-          ).src_rect.set(0, $options.language == 'fr' ? 28 : 0, 320, 28),
+          ).src_rect.set(
+            0,
+            $options.language == 'fr' ? 28 : 0,
+            320,
+            28
+          ),
+
           grid: add_sprite(4, 34, 'crafting/grid'),
+
           ing_box: add_sprite(156, 34, 'crafting/ing_box'),
+
           scroll_bar: add_sprite(147, 35, 'crafting/scroll'),
-          left: add_sprite(20, 43, 'crafting/inputs').src_rect.set(0, 0, 12, 12),
-          right: add_sprite(116, 43, 'crafting/inputs').src_rect.set(12, 0, 12, 12),
-          knob: add_sprite(146, Constants::KNOB_BASE_Y, 'crafting/knob')
+
+          left: add_sprite(
+            20, 43,
+            'crafting/inputs'
+          ).src_rect.set(0, 0, 12, 12),
+
+          right: add_sprite(
+            116, 43,
+            'crafting/inputs'
+          ).src_rect.set(12, 0, 12, 12),
+
+          knob: add_sprite(
+            146,
+            Constants::KNOB_BASE_Y,
+            'crafting/knob'
+          )
         }
       end
     end
