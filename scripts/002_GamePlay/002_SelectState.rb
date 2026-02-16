@@ -25,7 +25,7 @@ module GamePlay
 
       if data[:max_craft] < 1
         play_buzzer_se
-        $scene.display_message(ext_text(14000, 0))
+        $scene.display_message(ext_text(140000, 0))
         return
       end
 
