@@ -13,6 +13,8 @@
 
 ## Installation / Update
 
+0. Dowload [Crafting.psdkplug](https://github.com/Otaku17/Crafting_psdk/releases)
+
 1. Place the plugin in your project/scripts:
 
    ```
