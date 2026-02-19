@@ -3,7 +3,7 @@
 name: Crafting
 author:
   - Ota
-version: 1.0.0
+version: 1.0.2
 deps: []
 added_files:
   - Data/Text/Dialogs/140000.csv
