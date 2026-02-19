@@ -84,15 +84,16 @@ module UI
       # @return [void]
       def adjust_scroll
         total_rows = (@recipes.size.to_f / Constants::GRID_COLS).ceil
+        max_scroll = [total_rows - Constants::GRID_ROWS, 0].max
         row = @recipe_index / Constants::GRID_COLS
 
         if row < @scroll_row
           @scroll_row = row
         elsif row >= @scroll_row + Constants::GRID_ROWS
-          @scroll_row = [row - Constants::GRID_ROWS + 1, total_rows - Constants::GRID_ROWS].max
+          @scroll_row = row - Constants::GRID_ROWS + 1
         end
 
-        @scroll_row = [@scroll_row, 0].max
+        @scroll_row = [[@scroll_row, 0].max, max_scroll].min
       end
     end
   end
