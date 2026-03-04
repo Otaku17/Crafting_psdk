@@ -54,6 +54,10 @@ module GamePlay
     # Switch to information state.
     # @return [void]
     def action_x
+      data = @ui.composition.current_recipe_data
+      return play_buzzer_se if data.nil?
+      return play_buzzer_se if data[:ingredients].to_a.empty?
+
       cursor_se
       @manager.set(:info)
     end
