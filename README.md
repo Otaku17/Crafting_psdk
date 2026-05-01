@@ -9,8 +9,6 @@
 
 ---
 
-<img src="https://cdn.discordapp.com/attachments/1469612417020461163/1472664631599431893/image.png?ex=69936550&is=699213d0&hm=a6721a9fa0cc0e9789938bc9dc6bcd591efe64da66538e92d820daf884a51d0f&">
-
 ## Installation / Update
 
 0. Dowload [Crafting.psdkplug](https://github.com/Otaku17/Crafting_psdk/releases)
