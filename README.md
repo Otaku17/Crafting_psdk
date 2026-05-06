@@ -11,7 +11,7 @@
 
 ## Installation / Update
 
-0. Dowload [Crafting.psdkplug](https://github.com/Otaku17/Crafting_psdk/releases)
+0. Download [Crafting.psdkplug](https://github.com/Otaku17/Crafting_psdk/releases)
 
 1. Place the plugin in your project/scripts:
 
@@ -36,8 +36,18 @@
 ## Open Crafting UI
 
 ```ruby
+# Show all categories (with :all tab)
 GamePlay.open_craft_system_ui
+
+# Show only specific categories (with :all tab)
+GamePlay.open_craft_system_ui([:ball, :medical])
+
+# Show a single category (no :all tab)
+GamePlay.open_craft_system_ui([:tm])
 ```
+
+> **The "All" tab appears automatically when 2 or more categories are passed.**  
+> Passing a single category hides the "All" tab — no extra configuration needed.
 
 You can call this from:
 - Events
@@ -205,7 +215,7 @@ Then assign it inside a recipe:
 | Field | Required | Type | Description |
 |-------|----------|------|-------------|
 | type | ✅ | String | Condition type |
-| item | ✅ | String | Item name |
+| item | ✅ | String | Item db_symbol |
 | quantity | ✅ | Integer | Required quantity |
 
 ---
@@ -237,6 +247,65 @@ CraftSystem.lock(:recipe_key)
 ```
 
 > Use manual unlock for recipes that should be available from the start or controlled via scripts/events.
+
+---
+
+## Pokémon Condition
+
+Unlocks a recipe when the player owns a Pokémon matching all specified attributes.  
+**Searches both the party and the PC storage.**  
+All fields are optional — only those present are checked.
+
+```json
+{
+  "type": "pokemon",
+  "db_symbol": "absol",
+  "min_loyalty": 200,
+  "min_level": 30,
+  "move": "night_slash",
+  "ability": "super_luck",
+  "holding_item": "dusk_stone",
+  "gender": 1,
+  "form": 0,
+  "shiny": false
+}
+```
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| type | ✅ | String | `"pokemon"` |
+| db_symbol | ❌ | String | Species db_symbol (e.g. `"absol"`) |
+| min_loyalty | ❌ | Integer | Minimum loyalty/happiness (0–255) |
+| min_level | ❌ | Integer | Minimum level |
+| move | ❌ | String | db_symbol of a move the Pokémon must know |
+| ability | ❌ | String | db_symbol of the ability the Pokémon must have |
+| holding_item | ❌ | String | db_symbol of the item the Pokémon must hold |
+| gender | ❌ | Integer | `0` = genderless, `1` = male, `2` = female |
+| form | ❌ | Integer | Form index (`0` = default, `29` = Mega, etc.) |
+| shiny | ❌ | Boolean | `true` = must be shiny, `false` = must not be shiny |
+
+**Simple example — Absolite:**
+
+```json
+"absolite": {
+  "ingredients": {
+    "dusk_stone": 1,
+    "dark_gem": 3
+  },
+  "result": "absolite",
+  "quantity": 1,
+  "category": "tm",
+  "unlock_condition": {
+    "type": "pokemon",
+    "db_symbol": "absol",
+    "min_loyalty": 200
+  }
+}
+```
+
+This unlocks as soon as the player owns an Absol with at least 200 loyalty, anywhere in their party or PC.
+
+> Pokémon conditions can be freely combined with `and` / `or` / `not` operators like any other condition type.
 
 ---
 
@@ -277,7 +346,7 @@ Inverts the condition result.
 
 | Field | Required | Type | Description |
 |-------|----------|------|-------------|
-| operator | ✅ | String | Logic type (and/or/not) |
+| operator | ✅ | String | Logic type (`and` / `or` / `not`) |
 | conditions | ✅ | Array | Array of conditions |
 
 > Nested operators are fully supported.
@@ -298,19 +367,9 @@ Inverts the condition result.
   "unlock_condition": {
     "operator": "and",
     "conditions": [
-      {
-        "type": "switch",
-        "id": 500
-      },
-      {
-        "type": "variable",
-        "id": 988,
-        "value": 3
-      },
-      {
-        "type": "recipe",
-        "key": "poke_ball"
-      }
+      { "type": "switch", "id": 500 },
+      { "type": "variable", "id": 988, "value": 3 },
+      { "type": "recipe", "key": "poke_ball" }
     ]
   }
 }
@@ -319,7 +378,7 @@ Inverts the condition result.
 This unlocks when:
 - Switch 500 is ON **AND**
 - Variable 988 equals 3 **AND**
-- Recipe "poke_ball" is unlocked
+- Recipe `poke_ball` is unlocked
 
 ---
 
@@ -368,6 +427,31 @@ CraftSystem.data_craft(:recipe_key)
 
 ---
 
+# UI API
+
+## Open with all categories
+
+```ruby
+GamePlay.open_craft_system_ui
+```
+
+## Open with a category filter
+
+Pass an array of category symbols — only those categories will appear in the UI.  
+The `:all` tab is added automatically when 2 or more categories are passed.
+
+```ruby
+# Two categories → :all tab shown automatically
+GamePlay.open_craft_system_ui([:ball, :medical])
+
+# Single category → no :all tab
+GamePlay.open_craft_system_ui([:tm])
+```
+
+Useful for NPC shops, event-specific crafting tables, or locked progression menus.
+
+---
+
 # AUTOMATIC STATE MANAGEMENT
 
 The system automatically:
@@ -387,6 +471,7 @@ The system automatically:
 - **Use manual unlocks for tutorials**: Control progression with manual unlock/lock
 - **Keep categories consistent**: Use the same category names across recipes
 - **Use nested operators for advanced progression**: Combine AND/OR/NOT for complex unlock logic
+- **Pokémon conditions search party + PC**: No need for the player to carry the Pokémon on them
 
 ---
 
@@ -402,74 +487,54 @@ The system automatically:
   ],
   "data": {
     "poke_ball": {
-      "ingredients": {
-        "red_apricorn": 2
-      },
+      "ingredients": { "red_apricorn": 2 },
       "result": "poke_ball",
       "quantity": 1,
       "category": "ball",
-      "unlock_condition": {
-        "type": "manual",
-        "value": true
-      }
+      "unlock_condition": { "type": "manual", "value": true }
     },
     "great_ball": {
-      "ingredients": {
-        "poke_ball": 1,
-        "blue_apricorn": 1
-      },
+      "ingredients": { "poke_ball": 1, "blue_apricorn": 1 },
       "result": "great_ball",
       "quantity": 1,
       "category": "ball",
       "unlock_condition": {
         "operator": "and",
         "conditions": [
-          {
-            "type": "switch",
-            "id": 500
-          },
-          {
-            "type": "variable",
-            "id": 988,
-            "value": 3
-          },
-          {
-            "type": "recipe",
-            "key": "poke_ball"
-          }
+          { "type": "switch", "id": 500 },
+          { "type": "variable", "id": 988, "value": 3 },
+          { "type": "recipe", "key": "poke_ball" }
         ]
       }
     },
     "potion": {
-      "ingredients": {
-        "tiny_mushroom": 2
-      },
+      "ingredients": { "tiny_mushroom": 2 },
       "result": "potion",
       "quantity": 1,
       "category": "medical",
-      "unlock_condition": {
-        "type": "manual",
-        "value": false
-      }
+      "unlock_condition": { "type": "manual", "value": false }
     },
     "super_potion": {
-      "ingredients": {
-        "big_mushroom": 1,
-        "potion": 1
-      },
+      "ingredients": { "big_mushroom": 1, "potion": 1 },
       "result": "super_potion",
       "quantity": 1,
       "category": "medical",
+      "unlock_condition": { "type": "recipe", "key": "potion" }
+    },
+    "absolite": {
+      "ingredients": { "dusk_stone": 1, "dark_gem": 3 },
+      "result": "absolite",
+      "quantity": 1,
+      "category": "tm",
       "unlock_condition": {
-        "type": "recipe",
-        "key": "potion"
+        "type": "pokemon",
+        "db_symbol": "absol",
+        "min_loyalty": 200
       }
     }
   }
 }
 ```
-
-> **Important:** Every recipe should have an `unlock_condition`. Use `{"type": "manual", "value": true}` for recipes available by default.
 
 ---
 
