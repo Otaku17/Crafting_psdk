@@ -11,9 +11,11 @@ module GamePlay
     attr_reader :base_ui, :composition, :state_manager
 
     # Initialize the Craft System UI.
+    # @param categories [Array<Symbol>, nil] Optional category filter.
     # @return [void]
-    def initialize
+    def initialize(categories = nil)
       super()
+      @categories = categories
       @running = true
     end
 
@@ -66,7 +68,7 @@ module GamePlay
     # Create the main crafting composition.
     # @return [void]
     def create_composition
-      @composition = UI::CraftSystemUI::Composition.new(@viewport)
+      @composition = UI::CraftSystemUI::Composition.new(@viewport, @categories)
     end
   end
 end

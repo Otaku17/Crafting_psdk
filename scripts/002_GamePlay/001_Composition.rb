@@ -22,16 +22,20 @@ module UI
 
       # Initialize the crafting UI composition.
       # @param viewport [Viewport]
+      # @param categories [Array<Symbol>, nil] Optional category filter.
+      #   If nil, all categories defined in the config are shown.
       # @return [void]
-      def initialize(viewport)
+      def initialize(viewport, categories = nil)
         super(viewport, 0, 0, default_cache: :interface)
+
+        @allowed_categories = categories&.map(&:to_sym)
 
         @mode = :select
         @category_index = 0
         @recipe_index   = 0
         @scroll_row     = 0
 
-        @categories = categories
+        @categories = filtered_categories
         @recipes    = recipes_for(current_category)
 
         @ui = create_box
@@ -158,6 +162,18 @@ module UI
       # @return [String]
       def category_name
         CraftSystem::Recipes.category_name(current_category)
+      end
+
+      private
+
+      # Return categories to display in the UI.
+      # If @allowed_categories is set (resolved by GamePlay.open_craft_system_ui),
+      # use that list directly — :all inclusion is already handled at call site.
+      # If nil, return all categories from config.
+      # @return [Array<Symbol>]
+      def filtered_categories
+        return categories unless @allowed_categories
+        @allowed_categories
       end
     end
   end

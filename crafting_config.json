@@ -25,19 +25,9 @@
       "unlock_condition": {
         "operator": "and",
         "conditions": [
-          {
-            "type": "switch",
-            "id": 500
-          },
-          {
-            "type": "variable",
-            "id": 988,
-            "value": 3
-          },
-          {
-            "type": "recipe",
-            "key": "poke_ball"
-          }
+          { "type": "switch", "id": 500 },
+          { "type": "variable", "id": 988, "value": 3 },
+          { "type": "recipe", "key": "poke_ball" }
         ]
       }
     },
@@ -66,6 +56,21 @@
       "unlock_condition": {
         "type": "recipe",
         "key": "potion"
+      }
+    },
+
+    "absolite": {
+      "ingredients": {
+        "dusk_stone": 1,
+        "dark_gem": 3
+      },
+      "result": "absolite",
+      "quantity": 1,
+      "category": "tm",
+      "unlock_condition": {
+        "type": "pokemon",
+        "db_symbol": "absol",
+        "min_loyalty": 200
       }
     }
   }
