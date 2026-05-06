@@ -274,7 +274,7 @@ All fields are optional — only those present are checked.
 | Field | Required | Type | Description |
 |-------|----------|------|-------------|
 | type | ✅ | String | `"pokemon"` |
-| db_symbol | ❌ | String | Species db_symbol (e.g. `"absol"`) |
+| db_symbol | ✅ | String | Species db_symbol (e.g. `"absol"`) |
 | min_loyalty | ❌ | Integer | Minimum loyalty/happiness (0–255) |
 | min_level | ❌ | Integer | Minimum level |
 | move | ❌ | String | db_symbol of a move the Pokémon must know |
