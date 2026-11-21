@@ -128,7 +128,7 @@ Then assign it inside a recipe:
 | result | ✅ | String | Crafted item |
 | quantity | ✅ | Integer | Amount produced |
 | category | ✅ | String | Recipe category |
-| unlock_condition | ✅ | Object | Unlock logic |
+| unlock_condition | ✅ | Object | Unlock logic (add `"persistent": true` to keep it unlocked once met) |
 
 > Every recipe must have an unlock condition defined.
 
@@ -149,6 +149,7 @@ Then assign it inside a recipe:
 |-------|----------|------|-------------|
 | type | ✅ | String | Condition type |
 | id | ✅ | Integer | Switch ID |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 ---
 
@@ -167,6 +168,7 @@ Then assign it inside a recipe:
 | type | ✅ | String | Condition type |
 | id | ✅ | Integer | Variable ID |
 | value | ✅ | Integer | Required value |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 ---
 
@@ -183,6 +185,7 @@ Then assign it inside a recipe:
 |-------|----------|------|-------------|
 | type | ✅ | String | Condition type |
 | id | ✅ | Integer | Quest ID |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 ---
 
@@ -199,6 +202,7 @@ Then assign it inside a recipe:
 |-------|----------|------|-------------|
 | type | ✅ | String | Condition type |
 | key | ✅ | String | Recipe key |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 ---
 
@@ -217,6 +221,7 @@ Then assign it inside a recipe:
 | type | ✅ | String | Condition type |
 | item | ✅ | String | Item db_symbol |
 | quantity | ✅ | Integer | Required quantity |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 ---
 
@@ -283,6 +288,7 @@ All fields are optional — only those present are checked.
 | gender | ❌ | Integer | `0` = genderless, `1` = male, `2` = female |
 | form | ❌ | Integer | Form index (`0` = default, `29` = Mega, etc.) |
 | shiny | ❌ | Boolean | `true` = must be shiny, `false` = must not be shiny |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 **Simple example — Absolite:**
 
@@ -348,6 +354,7 @@ Inverts the condition result.
 |-------|----------|------|-------------|
 | operator | ✅ | String | Logic type (`and` / `or` / `not`) |
 | conditions | ✅ | Array | Array of conditions |
+| persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
 > Nested operators are fully supported.
 
@@ -382,6 +389,122 @@ This unlocks when:
 
 ---
 
+# PERSISTENT UNLOCK
+
+By default, an unlock condition is **live**: it is checked again every time.  
+If the player loses the item, turns the switch OFF, releases the Pokémon… the recipe is **locked again**  
+(and every recipe that depends on it with `"type": "recipe"` is locked too).
+
+Add `"persistent": true` on the **root** `unlock_condition` to keep the recipe unlocked forever once its condition has been met one time.
+
+> - Works with every condition type: `item`, `switch`, `variable`, `quest`, `recipe`, `pokemon` and operators (`and` / `or` / `not`).
+> - Only the root condition is read: `persistent` inside a nested condition is ignored.
+> - Useless on `manual` (already persistent by nature).
+> - The unlock is stored in the save (`$crafting_data`).
+
+## When is the unlock recorded?
+
+No background check — the condition is evaluated at precise moments:
+
+| Moment | Automatic |
+|--------|-----------|
+| An item is added to the bag (`$bag.add_item`) | ✅ |
+| The recipe is checked (`CraftSystem.unlocked?`, crafting UI opened, `can_craft?`…) | ✅ |
+| `CraftSystem.check_persistent_unlocks!` is called | Manual |
+
+For switches, variables, quests and Pokémon, if the condition can become false again **before** the next crafting check, call this in the same event:
+
+```ruby
+CraftSystem.check_persistent_unlocks!
+```
+
+## Item — keep the recipe after losing the item
+
+```json
+"iron_hammer": {
+  "ingredients": { "iron_ore": 3, "wood": 1 },
+  "result": "iron_hammer",
+  "quantity": 1,
+  "category": "tool",
+  "unlock_condition": {
+    "type": "item",
+    "item": "hammer_blueprint",
+    "quantity": 1,
+    "persistent": true
+  }
+}
+```
+
+The player picks up `hammer_blueprint` → the recipe is unlocked and saved instantly.  
+Even if the blueprint is sold, tossed or consumed, `iron_hammer` stays unlocked.
+
+## Switch
+
+```json
+"unlock_condition": { "type": "switch", "id": 12, "persistent": true }
+```
+
+Switch 12 turned ON once → unlocked forever, even if it is turned OFF later.
+
+## Variable
+
+```json
+"unlock_condition": { "type": "variable", "id": 5, "value": 10, "persistent": true }
+```
+
+Variable 5 reached 10 once → unlocked forever, even if it goes back down.
+
+## Quest
+
+```json
+"unlock_condition": { "type": "quest", "id": 3, "persistent": true }
+```
+
+## Recipe Dependency
+
+```json
+"unlock_condition": { "type": "recipe", "key": "poke_ball_basic", "persistent": true }
+```
+
+Stays unlocked even if `poke_ball_basic` is locked again later.
+
+## Pokémon
+
+```json
+"unlock_condition": {
+  "type": "pokemon",
+  "db_symbol": "absol",
+  "min_loyalty": 200,
+  "persistent": true
+}
+```
+
+Unlocked once the player owns that Absol, even if it is released or traded afterwards.
+
+## Operators
+
+```json
+"unlock_condition": {
+  "operator": "and",
+  "persistent": true,
+  "conditions": [
+    { "type": "switch", "id": 500 },
+    { "type": "item", "item": "blue_apricorn", "quantity": 5 }
+  ]
+}
+```
+
+Put `persistent` next to `operator`, not inside `conditions`.
+
+## Lock / unlock a persistent recipe
+
+```ruby
+CraftSystem.unlock(:iron_hammer) # Force unlock, kept even if the condition is not met
+CraftSystem.lock(:iron_hammer)   # Reset: stays unlocked only if the condition is met right now
+```
+
+---
+
 # CRAFT SYSTEM API
 
 Returns all recipes.
@@ -398,6 +521,16 @@ Manually unlock/lock a recipe.
 ```ruby
 CraftSystem.unlock(:recipe_key)
 CraftSystem.lock(:recipe_key)
+```
+
+Check if a recipe uses a persistent unlock.
+```ruby
+CraftSystem.persistent?(:recipe_key)
+```
+
+Record every persistent recipe whose condition is met right now (returns the newly unlocked keys).
+```ruby
+CraftSystem.check_persistent_unlocks!
 ```
 
 Check if player can craft.
@@ -460,6 +593,7 @@ The system automatically:
 - Updates dependent recipes
 - Removes invalid states
 - Re-evaluates unlock conditions dynamically
+- Keeps persistent recipes unlocked once their condition has been met
 - Prevents circular dependency issues
 
 ---
@@ -472,6 +606,7 @@ The system automatically:
 - **Keep categories consistent**: Use the same category names across recipes
 - **Use nested operators for advanced progression**: Combine AND/OR/NOT for complex unlock logic
 - **Pokémon conditions search party + PC**: No need for the player to carry the Pokémon on them
+- **Use `persistent` for one-time discoveries**: blueprints, consumable key items, temporary switches
 
 ---
 

@@ -83,12 +83,13 @@ module CraftSystem
     # @return [Hash]
     def normalize_condition(condition)
       if condition[:operator] || condition['operator']
-        {
+        normalized = {
           operator: (condition[:operator] || condition['operator']).to_sym,
           conditions: (condition[:conditions] || condition['conditions']).map do |cond|
             normalize_condition(cond)
           end
         }
+        normalize_persistent(condition, normalized)
       else
         normalized = {
           type: (condition[:type] || condition['type']).to_sym
@@ -139,9 +140,20 @@ module CraftSystem
         shiny = condition.key?(:shiny) ? condition[:shiny] : condition['shiny']
         normalized[:shiny] = shiny unless shiny.nil?
 
-        normalized
+        normalize_persistent(condition, normalized)
       end
     end
     private :normalize_condition
+
+    # Copy the optional "persistent" flag (only read on the root condition).
+    # @param condition [Hash] raw condition
+    # @param normalized [Hash] normalized condition
+    # @return [Hash]
+    def normalize_persistent(condition, normalized)
+      flag = condition.key?(:persistent) ? condition[:persistent] : condition['persistent']
+      normalized[:persistent] = (flag == true) unless flag.nil?
+      normalized
+    end
+    private :normalize_persistent
   end
 end
