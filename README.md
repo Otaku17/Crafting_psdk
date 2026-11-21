@@ -47,7 +47,7 @@ GamePlay.open_craft_system_ui([:tm])
 ```
 
 > **The "All" tab appears automatically when 2 or more categories are passed.**  
-> Passing a single category hides the "All" tab — no extra configuration needed.
+> Passing a single category hides the "All" tabno extra configuration needed.
 
 You can call this from:
 - Events
@@ -211,7 +211,7 @@ Then assign it inside a recipe:
 ```json
 {
   "type": "item",
-  "item": "hammer_tool",
+  "item": "poke_ball",
   "quantity": 1
 }
 ```
@@ -259,7 +259,7 @@ CraftSystem.lock(:recipe_key)
 
 Unlocks a recipe when the player owns a Pokémon matching all specified attributes.  
 **Searches both the party and the PC storage.**  
-All fields are optional — only those present are checked.
+All fields are optionalonly those present are checked.
 
 ```json
 {
@@ -290,7 +290,7 @@ All fields are optional — only those present are checked.
 | shiny | ❌ | Boolean | `true` = must be shiny, `false` = must not be shiny |
 | persistent | ❌ | Boolean | Keep the recipe unlocked once met (see [Persistent Unlock](#persistent-unlock)) |
 
-**Simple example — Absolite:**
+**Simple exampleAbsolite:**
 
 ```json
 "absolite": {
@@ -404,7 +404,7 @@ Add `"persistent": true` on the **root** `unlock_condition` to keep the recipe u
 
 ## When is the unlock recorded?
 
-No background check — the condition is evaluated at precise moments:
+No background checkthe condition is evaluated at precise moments:
 
 | Moment | Automatic |
 |--------|-----------|
@@ -418,25 +418,25 @@ For switches, variables, quests and Pokémon, if the condition can become false 
 CraftSystem.check_persistent_unlocks!
 ```
 
-## Item — keep the recipe after losing the item
+## Itemkeep the recipe after losing the item
 
 ```json
-"iron_hammer": {
-  "ingredients": { "iron_ore": 3, "wood": 1 },
-  "result": "iron_hammer",
+"poke_ball": {
+  "ingredients": { "red_apricorn": 2 },
+  "result": "poke_ball",
   "quantity": 1,
   "category": "tool",
   "unlock_condition": {
     "type": "item",
-    "item": "hammer_blueprint",
+    "item": "poke_ball_blueprint",
     "quantity": 1,
     "persistent": true
   }
 }
 ```
 
-The player picks up `hammer_blueprint` → the recipe is unlocked and saved instantly.  
-Even if the blueprint is sold, tossed or consumed, `iron_hammer` stays unlocked.
+The player picks up `poke_ball_blueprint` → the recipe is unlocked and saved instantly.  
+Even if the blueprint is sold, tossed or consumed, `poke_ball` stays unlocked.
 
 ## Switch
 
@@ -499,8 +499,8 @@ Put `persistent` next to `operator`, not inside `conditions`.
 ## Lock / unlock a persistent recipe
 
 ```ruby
-CraftSystem.unlock(:iron_hammer) # Force unlock, kept even if the condition is not met
-CraftSystem.lock(:iron_hammer)   # Reset: stays unlocked only if the condition is met right now
+CraftSystem.unlock(:poke_ball) # Force unlock, kept even if the condition is not met
+CraftSystem.lock(:poke_ball)   # Reset: stays unlocked only if the condition is met right now
 ```
 
 ---
@@ -570,7 +570,7 @@ GamePlay.open_craft_system_ui
 
 ## Open with a category filter
 
-Pass an array of category symbols — only those categories will appear in the UI.  
+Pass an array of category symbolsonly those categories will appear in the UI.  
 The `:all` tab is added automatically when 2 or more categories are passed.
 
 ```ruby
